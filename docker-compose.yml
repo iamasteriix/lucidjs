@@ -40,11 +40,11 @@ services:
 
   server-template:
     image: lucidjs
-    command: npm run dev --workspace=templates/server
+    command: npm run dev --workspace=packages/server-template/
     volumes:
       - .:/app
-      - server-template_root_modules:/app/node_modules
-      - server-template_workspace_modules:/app/templates/server/node_modules
+      - server-template_root_modules:/app/node_modules/
+      - server-template_workspace_modules:/app/packages/server-template/node_modules/
     ports:
       - "5001:5001"
 

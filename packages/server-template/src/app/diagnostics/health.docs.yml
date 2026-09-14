@@ -1,0 +1,19 @@
+/diagnostics/health:
+  get:
+    summary: Health check endpoint
+    tags:
+      - Diagnostics
+    responses:
+      '200':
+        description: Application is healthy
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: ok
+                time:
+                  type: string
+                  format: date-time

@@ -1,13 +1,5 @@
-// required to start tracing server before we load any modules
-import { startTracing } from './telemetry/index.js';
-const telemetry = await startTracing();
-
-
-// —— load application ——————————————————————————————————————————————————————————————————
-// we use dynamic imports at the entry point so tracing can monkey-patch the app's lifecycle
-// before the module graph resolves and the program starts
-const { logger } = await import('./config/index.js');
-const { createApp } = await import('./app/index.js');
+import { logger } from './config/logger.js';
+import { createApp } from './app/index.js';
 
 let onShutdown: () => Promise<void>;
 
@@ -40,7 +32,6 @@ const main = async () => {
 
   onShutdown = async () => {
     try {
-      await telemetry.shutdown();
       await app.shutdown();
     } catch (error) {
       logger.fatal({ err: error }, 'Error shutting down.');

@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { createLucidApp } from './bin';
+import { createTemplate } from './templates';
 import { registerFonts, } from './fonts';
 
 
@@ -11,7 +11,7 @@ program
   .description('Create elegant experiences for everyone')
   .version('0.1.0');
 
-createLucidApp(program);
+createTemplate(program);
 registerFonts(program);
 
 program.parse(process.argv);

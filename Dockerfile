@@ -17,21 +17,21 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 RUN npm i -g vite
 
-COPY package*.json                    ./
-COPY packages/web/package*.json       ./packages/web/
-COPY packages/native/package*.json    ./packages/native/
-COPY packages/icons/package*.json     ./packages/icons/
-COPY packages/core/package*.json      ./packages/core/
-COPY packages/cli/package*.json       ./packages/cli/
-COPY packages/desktop/package*.json   ./packages/desktop/
-COPY templates/server/package*.json   ./templates/server/
+COPY package*.json                            ./
+COPY packages/web/package*.json               ./packages/web/
+COPY packages/native/package*.json            ./packages/native/
+COPY packages/icons/package*.json             ./packages/icons/
+COPY packages/core/package*.json              ./packages/core/
+COPY packages/cli/package*.json               ./packages/cli/
+COPY packages/desktop/package*.json           ./packages/desktop/
+COPY packages/server-template/package*.json   ./packages/server-template/
 
 RUN npm i
 
-COPY packages/web/      ./packages/web/
-COPY packages/native/   ./packages/native/
-COPY packages/icons/    ./packages/icons/
-COPY packages/core/     ./packages/core/
-COPY packages/cli/      ./packages/cli/
-COPY packages/desktop/  ./packages/desktop/
-COPY templates/server/  ./templates/server/
+COPY packages/web/              ./packages/web/
+COPY packages/native/           ./packages/native/
+COPY packages/icons/            ./packages/icons/
+COPY packages/core/             ./packages/core/
+COPY packages/cli/              ./packages/cli/
+COPY packages/desktop/          ./packages/desktop/
+COPY packages/server-template/  ./packages/server-template/

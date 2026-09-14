@@ -1,4 +1,6 @@
 import { defineConfig } from 'tsup';
+import fs from 'fs';
+import path from 'path';
 
 
 export default defineConfig({
@@ -16,5 +18,13 @@ export default defineConfig({
   ],
   banner: {
     js: '#!/usr/bin/env node',  // automatically inject the node shebang at the top of the compiled file
+  },
+  onSuccess: async () => {
+    const serverTemplateSrc = path.resolve(__dirname, '../server-template/');
+    const serverTemplateDest = path.resolve(__dirname, 'dist/templates/server/');
+    fs.cpSync(serverTemplateSrc, serverTemplateDest, { recursive: true, });
+
+    const serverNodeModulesDir = path.join(serverTemplateDest, 'node_modules');
+    fs.rmSync(serverNodeModulesDir, { recursive: true, force: true });
   },
 });

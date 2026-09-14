@@ -5,7 +5,7 @@ export const swaggerSpec = swaggerJSDoc({
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Lucid API for Server',
+      title: 'Lucid.js Server API template',
       version: '0.1.0',
     },
   },

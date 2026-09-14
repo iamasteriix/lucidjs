@@ -2,7 +2,7 @@
   "name": "Lucid - Server template",
   "dockerComposeFile": "../../docker-compose.yml",
   "service": "server-template",
-  "workspaceFolder": "/app/templates/server/",
+  "workspaceFolder": "/app/packages/server-template/",
   "customizations": {
     "vscode": {
       "settings": {

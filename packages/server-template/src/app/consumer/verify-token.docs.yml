@@ -1,6 +1,8 @@
 /consumer/verify:
   get:
     summary: Exchange a one-time token for a skbd token
+    tags:
+      - Examples
     parameters:
       - in: query
         name: token

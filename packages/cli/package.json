@@ -2,7 +2,7 @@
   "name": "@lucidjs/cli",
   "private": false,
   "version": "0.1.0",
-  "description": "Lucid UI setup manager",
+  "description": "Create elegant experiences for everyone",
   "bin": {
     "lucidjs": "./dist/index.js"
   },

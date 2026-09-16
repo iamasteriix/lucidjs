@@ -1,13 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { tmpdir } from 'os';
-import { executeProgram, scaffoldCommand } from './scaffold';
-import { Project } from 'ts-morph';
+import { initCommand } from './index';
+import { scaffoldServer } from './server';
 import fs from 'fs';
 import path from 'path';
-import inquirer from 'inquirer';
 
 
-// Mock ONLY interactive prompts and npm install execution
+// mock ONLY interactive prompts and npm install execution
 vi.mock('inquirer');
 vi.mock('child_process', () => ({
   default: { execSync: vi.fn() },
@@ -20,7 +19,6 @@ describe(
   () => {
     let tempDir: string;
     let targetDir: string;
-    const project = new Project();
 
     beforeEach(
       () => {
@@ -28,19 +26,20 @@ describe(
         tempDir = fs.mkdtempSync(path.join(tmpdir(), 'lucid-test-'));
         targetDir = path.join(tempDir, 'test-scaffolded-app');
 
-        vi.mocked(inquirer.prompt).mockResolvedValue({ type: 'server' });
-        vi.spyOn(process, 'cwd').mockReturnValue(tempDir);
-
-        // redirect template lookup to local dev path if dist doesn't exist yet
+        // redirect boilerplate lookup to local dev path if dist doesn't exist yet
         const originalResolve = path.resolve;
         vi.spyOn(path, 'resolve').mockImplementation((...args) => {
-          if (args.includes('templates')) {
-            const distTemplate = originalResolve(__dirname, '../../dist/templates/server');
-            const sourceTemplate = originalResolve(__dirname, '../../templates/server');
-            return fs.existsSync(distTemplate) ? distTemplate : sourceTemplate;
+          if (args.includes('boilerplates')) {
+            const distBoilerplate = originalResolve(__dirname, '../../dist/boilerplates/server');
+            const sourceBoilerplate = originalResolve(__dirname, '../../boilerplates/server');
+            return fs.existsSync(distBoilerplate) ? distBoilerplate : sourceBoilerplate;
           }
           return originalResolve(...args);
         });
+
+        // Copy boilerplate to targetDir so scaffoldServer has files to work on
+        const boilerplateDir = path.resolve('boilerplates');
+        fs.cpSync(boilerplateDir, targetDir, { recursive: true });
     });
 
     afterEach(() => {
@@ -51,8 +50,8 @@ describe(
     it(
       'registers CLI flags correctly',
       () => {
-        expect(scaffoldCommand.name()).toBe('init');
-        const optionNames = scaffoldCommand.options.map((o) => o.long);
+        expect(initCommand.name()).toBe('init');
+        const optionNames = initCommand.options.map((o) => o.long);
         expect(optionNames).toContain('--tests');
         expect(optionNames).toContain('--docs');
         expect(optionNames).toContain('--telemetry');
@@ -61,11 +60,15 @@ describe(
     it(
       'scaffolds app on disk, updates package.json, and strips telemetry when off',
       async () => {
-        await executeProgram('test-scaffolded-app', {
-          tests: 'on',
-          docs: 'on',
-          telemetry: 'off',
-        }, project);
+        await scaffoldServer(
+          'test-scaffolded-app',
+          {
+            tests: 'on',
+            docs: 'on',
+            telemetry: 'off',
+          },
+          targetDir
+        );
 
         // check package.json mutation on disk
         const pkg = JSON.parse(fs.readFileSync(path.join(targetDir, 'package.json'), 'utf-8'));
@@ -79,14 +82,14 @@ describe(
     it(
       'prunes docs and performs real AST modifications on src/app/routes.ts when --docs off is passed',
       async () => {
-        await executeProgram(
+        await scaffoldServer(
           'test-scaffolded-app',
           {
             docs: 'off',
             tests: 'on',
             telemetry: 'on',
           },
-          project
+          targetDir
         );
 
         // Check dependency removal on disk
@@ -109,7 +112,7 @@ describe(
     it(
       'prunes test files and vitest/playwright configs based on scope on disk',
       async () => {
-        await executeProgram(
+        await scaffoldServer(
           'test-scaffolded-app',
           {
             tests: 'on',
@@ -117,7 +120,7 @@ describe(
             docs: 'off',
             telemetry: 'on',
           },
-          project
+          targetDir
         );
 
         const pkg = JSON.parse(fs.readFileSync(path.join(targetDir, 'package.json'), 'utf-8'));

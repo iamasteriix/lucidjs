@@ -1,66 +1,21 @@
 import type { CliOptions } from './types';
-import { Command, Option, } from 'commander';
 import { Project, SyntaxKind } from 'ts-morph';
 import { logger } from '@/config';
 import child_process from 'child_process';
 import path from 'path';
-import inquirer from 'inquirer';
 import fs from 'fs';
 
 
 /**
  * Registers the init/create-app command
  */
-export const scaffoldCommand = new Command('init')
-  .description('Initialize a new Lucid.js app')
-  .argument('[dir]', 'target directory', 'server-app')
-  .addOption(
-    new Option('--tests <mode>', 'include test suite')
-      .choices(['on', 'off'])
-      .default('on')
-  )
-  .addOption(
-    new Option('--test-scope <kinds...>', 'specify test scopes')
-      .choices(['unit', 'i9n', 'e2e'])
-      .default(['unit', 'i9n', 'e2e'])
-  )
-  .addOption(
-    new Option('--docs <mode>', 'include swagger docs')
-      .choices(['on', 'off'])
-      .default('on')
-  )
-  .addOption(
-    new Option('--telemetry <mode>', 'include opentelemetry tracing')
-      .choices(['on', 'off'])
-      .default('on')
-  )
-  .action(async (dirArg, opts) => {
-    const project = new Project();
-    await executeProgram(dirArg, opts, project);
-  });
-
-
-export const executeProgram = async (
+export const scaffoldServer = async (
   dirArg: string = 'server-app',
   opts: CliOptions,
-  project: Project
+  targetDir: string,
 ) => {
-  // get target directory for default project name
-  const targetDir = path.resolve(process.cwd(), dirArg);
+  const project = new Project();
 
-  // specify platform
-  const { type, } = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'type',
-      message: 'Select platform framework',
-      choices: ['server'],
-      default: 'server',
-    },
-  ]);
-  const templateDir = path.resolve(__dirname, 'templates', type);
-  fs.cpSync(templateDir, targetDir, { recursive: true, });
-  
   // parse consumer package to facilitate editing
   const pkgPath = path.resolve(targetDir, 'package.json');
   const pkgContent = fs.readFileSync(pkgPath, 'utf-8');

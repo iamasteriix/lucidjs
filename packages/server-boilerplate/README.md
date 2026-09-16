@@ -4,10 +4,12 @@ A server template built on [Express](https://expressjs.com/) with testing, api d
 
 
 ## Project structure and organization
+
 The file structure is inspired by popular React frameworks, [Expo](https://docs.expo.dev/get-started/start-developing/#file-structure) and [Next](https://nextjs.org/docs/app/getting-started/project-structure) to make switching between frontend and backend development contexts completely seamless, while also taking advantage of the foundational loose-coupling of well-defined modules that create a better development experience and allow for easy maintainability and scalability.
 
 
 ## Validation, testing, API Docs, and telemetry
+
 These features are included as first-class citizens in your project to facilitate progressively building on top of them as development advances, reducing the friction that typically comes with having to integrate them after the fact.
 
 Here's how the features are pre-configured:
@@ -23,3 +25,23 @@ These files and packages are included in the standard boilerplate. You can use t
 
 
 ## Getting started
+
+Create a new project by running the following command and selecting `server` in the interactive terminal.
+
+```bash
+npx @lucidjs/cli init [project-name] [options]
+```
+
+The following options are available:
+
+```bash
+--tests [on|off]            Include test suite
+--test-scope [unit i9n e2e] Specify test scopes (unit, integration, end-to-end)
+--docs [on|off]             Include Swagger docs
+--telemetry [on|off]        Include observability with Opentelemetry
+```
+
+Remember that these options are all inclusive by default, and you will have to remove them manually by toggling them off, or selecting the options you want to keep to filter out the rest.
+
+---
+# ✌️

@@ -1,9 +1,9 @@
 import { Command } from 'commander';
-import { scaffoldCommand } from './scaffold/scaffold';
+import { initCommand, } from './boilerplates';
 
 
 new Command('lucid')
   .description('Create elegant experiences for everyone')
   .version('0.1.0')
-  .addCommand(scaffoldCommand)
+  .addCommand(initCommand)
   .parse(process.argv);

@@ -12,16 +12,17 @@ export default defineConfig({
   treeshake: true,
   outDir: 'dist',
   minify: true,
+  skipNodeModulesBundle: true,
   external: [
     '@lucidjs/core',
-    '@lucidjs/web'
+    '@lucidjs/web',
   ],
   banner: {
     js: '#!/usr/bin/env node',  // automatically inject the node shebang at the top of the compiled file
   },
   onSuccess: async () => {
     const serverBoilerplateSrc = path.resolve(__dirname, '../server-boilerplate/');
-    const serverBoilerplateDest = path.resolve(__dirname, 'dist/boilerplate/server/');
+    const serverBoilerplateDest = path.resolve(__dirname, 'dist/boilerplates/server/');
     fs.cpSync(serverBoilerplateSrc, serverBoilerplateDest, { recursive: true, });
 
     ['node_modules', 'test-results'].forEach(dirName => {

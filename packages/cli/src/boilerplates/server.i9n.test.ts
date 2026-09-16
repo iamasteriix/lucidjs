@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { tmpdir } from 'os';
-import { scaffoldCommand } from './scaffold';
+import { initCommand } from './index';
 import fs from 'fs';
 import path from 'path';
 import inquirer from 'inquirer';
@@ -21,20 +21,20 @@ describe(
 
     beforeEach(
       () => {
-        scaffoldCommand.exitOverride();
+        initCommand.exitOverride();
         tempDir = fs.mkdtempSync(path.join(tmpdir(), 'lucid-i9n-'));
         targetDir = path.join(tempDir, 'integration-app');
 
         vi.mocked(inquirer.prompt).mockResolvedValue({ type: 'server' });
         vi.spyOn(process, 'cwd').mockReturnValue(tempDir);
 
-        // fallback template path resolution (dist vs source fallback)
+        // fallback boilerplate path resolution (dist vs source fallback)
         const originalResolve = path.resolve;
         vi.spyOn(path, 'resolve').mockImplementation((...args) => {
-          if (args.includes('templates')) {
-            const distTemplate = originalResolve(__dirname, '../../dist/templates/server');
-            const sourceTemplate = originalResolve(__dirname, '../../templates/server');
-            return fs.existsSync(distTemplate) ? distTemplate : sourceTemplate;
+          if (args.includes('boilerplates')) {
+            const distBoilerplate = originalResolve(__dirname, '../../dist/boilerplates/server');
+            const sourceBoilerplate = originalResolve(__dirname, '../../boilerplates/server');
+            return fs.existsSync(distBoilerplate) ? distBoilerplate : sourceBoilerplate;
           }
           return originalResolve(...args);
         });
@@ -49,7 +49,7 @@ describe(
       'parses CLI arguments, scaffolds app to disk, and applies AST transformations',
       async () => {
         // simulate real terminal execution: lucid init integration-app --docs off --telemetry off --test-scope unit
-        await scaffoldCommand.parseAsync([
+        await initCommand.parseAsync([
           'integration-app',
           '--docs',
           'off',

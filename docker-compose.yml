@@ -38,13 +38,13 @@ services:
     ports:
       - "2001:2001"
 
-  server-template:
+  server-boilerplate:
     image: lucidjs
-    command: npm run dev --workspace=packages/server-template/
+    command: npm run dev --workspace=packages/server-boilerplate/
     volumes:
       - .:/app
-      - server-template_root_modules:/app/node_modules/
-      - server-template_workspace_modules:/app/packages/server-template/node_modules/
+      - server-boilerplate_root_modules:/app/node_modules/
+      - server-boilerplate_workspace_modules:/app/packages/server-boilerplate/node_modules/
     ports:
       - "5001:5001"
 
@@ -56,5 +56,5 @@ volumes:
   desktop_root_modules:
   desktop_workspace_modules:
   desktop_target:
-  server-template_root_modules:
-  server-template_workspace_modules:
+  server-boilerplate_root_modules:
+  server-boilerplate_workspace_modules:

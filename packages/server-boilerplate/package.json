@@ -1,5 +1,5 @@
 {
-  "name": "@lucidjs/server-template",
+  "name": "@lucidjs/server-boilerplate",
   "description": "Welcome to the playground, powered by Express",
   "version": "0.1.0",
   "private": false,

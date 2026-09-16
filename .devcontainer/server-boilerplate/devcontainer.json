@@ -1,8 +1,8 @@
 {
-  "name": "Lucid - Server template",
+  "name": "Lucid - Server boilerplate",
   "dockerComposeFile": "../../docker-compose.yml",
-  "service": "server-template",
-  "workspaceFolder": "/app/packages/server-template/",
+  "service": "server-boilerplate",
+  "workspaceFolder": "/app/packages/server-boilerplate/",
   "customizations": {
     "vscode": {
       "settings": {

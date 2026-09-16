@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validateRequestsMiddleware } from '@/middleware/index.js';
 import { getVerifyTokenSchema, } from './validation.schemas.js';
-import { verifyToken } from './verify-token.controller.js';
+import { verifyTokenController } from './verify-token.controller.js';
 
 
 export const consumerRouter = (): Router => {
@@ -9,7 +9,7 @@ export const consumerRouter = (): Router => {
 
   router
     .route('/verify')
-    .get(validateRequestsMiddleware(getVerifyTokenSchema), verifyToken);
+    .get(validateRequestsMiddleware(getVerifyTokenSchema), verifyTokenController);
 
   return router;
 }

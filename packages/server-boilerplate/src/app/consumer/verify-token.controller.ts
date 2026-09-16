@@ -5,7 +5,7 @@ import { consumeToken, issueToken } from './tokens.service.js';
 import * as constants from './constants.js';
 
 
-export const verifyToken = async (
+export const verifyTokenController = async (
   request: ReqQueryVerifyToken,
   response: Response,
   next: NextFunction,

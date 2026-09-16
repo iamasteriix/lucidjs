@@ -15,6 +15,6 @@
     "packages/core",
     "packages/cli",
     "packages/desktop",
-    "packages/server-template/"
+    "packages/server-boilerplate/"
   ]
 }

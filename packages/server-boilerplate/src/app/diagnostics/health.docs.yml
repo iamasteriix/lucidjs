@@ -5,7 +5,7 @@
       - Diagnostics
     responses:
       '200':
-        description: Application is healthy
+        description: OK
         content:
           application/json:
             schema:

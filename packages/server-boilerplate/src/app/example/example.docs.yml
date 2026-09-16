@@ -1,11 +1,11 @@
 /:
   get:
-    summary: Module example so you know you're in the right place.
+    summary: Timestamped welcome message
     tags:
       - Examples
     responses:
       '200':
-        description: Welcome message
+        description: OK
         content:
           application/json:
             schema:

@@ -1,6 +1,6 @@
-import type { Command } from 'commander';
 import type { CliOptions } from './types';
-import { Option, } from 'commander';
+import { Command, Option, } from 'commander';
+import { Project, SyntaxKind } from 'ts-morph';
 import { logger } from '@/config';
 import child_process from 'child_process';
 import path from 'path';
@@ -11,35 +11,44 @@ import fs from 'fs';
 /**
  * Registers the init/create-app command
  */
-export const createTemplate = (program: Command) => {
-  program
-    .command('init')
-    .description('Initialize a new Lucid.js app')
-    .argument('[dir]', 'target directory', 'server-app')
-    .option('--with-tests', 'include test suite', true)
-    .addOption(
-      new Option('--test-scope <kinds...>', 'specify test scopes')
-        .choices(['unit', 'i9n', 'e2e'])
-        .default(['unit', 'i9n', 'e2e'])
-    )
-    .option('--with-docs', 'include swagger docs', true)
-    .addOption(
-      new Option('--telemetry <mode>', 'include opentelemetry tracing')
-        .choices(['on', 'off'])
-        .default('on')
-    )
-    .action(async (dirArg, opts) => {
-      await executeProgram(dirArg, opts);
-    });
-}
+export const scaffoldCommand = new Command('init')
+  .description('Initialize a new Lucid.js app')
+  .argument('[dir]', 'target directory', 'server-app')
+  .addOption(
+    new Option('--tests <mode>', 'include test suite')
+      .choices(['on', 'off'])
+      .default('on')
+  )
+  .addOption(
+    new Option('--test-scope <kinds...>', 'specify test scopes')
+      .choices(['unit', 'i9n', 'e2e'])
+      .default(['unit', 'i9n', 'e2e'])
+  )
+  .addOption(
+    new Option('--docs <mode>', 'include swagger docs')
+      .choices(['on', 'off'])
+      .default('on')
+  )
+  .addOption(
+    new Option('--telemetry <mode>', 'include opentelemetry tracing')
+      .choices(['on', 'off'])
+      .default('on')
+  )
+  .action(async (dirArg, opts) => {
+    const project = new Project();
+    await executeProgram(dirArg, opts, project);
+  });
 
 
 export const executeProgram = async (
   dirArg: string = 'server-app',
   opts: CliOptions,
+  project: Project
 ) => {
+  // get target directory for default project name
   const targetDir = path.resolve(process.cwd(), dirArg);
 
+  // specify platform
   const { type, } = await inquirer.prompt([
     {
       type: 'list',
@@ -58,8 +67,36 @@ export const executeProgram = async (
   const pkg = JSON.parse(pkgContent);
   pkg.name = path.basename(targetDir);  // rename package
 
+  // handle consumer options
+  handleTestOptions(opts, targetDir, pkg);
+  handleDocs(opts, targetDir, project, pkg);
+  handleTelemetry(opts, targetDir, pkg);
+  
+  // overwrite default package.json
+  const pkgSerialized = JSON.stringify(pkg, null, 2);
+  fs.writeFileSync(pkgPath, pkgSerialized, 'utf-8');
+
+  // install dependencies
+  logger.info('Installing dependencies...');
+  child_process.execSync('npm install', {
+    cwd: targetDir,
+    stdio: 'inherit',
+  });
+
+  logger.info(`\nWelcome to the playground! Next steps:\n  cd ${dirArg}\n  npm run dev`);
+}
+
+
+/**
+ * Handle tests preferences
+ */
+const handleTestOptions = (
+  opts: CliOptions,
+  targetDir: string,
+  pkg: Record<string, any>,
+) => {
   // strip out all tests
-  if (!opts.withTests) {
+  if (opts.tests === 'off') {
     // strip all tests entirely
     const testFiles = fs.globSync('src/**/*.test.ts', { cwd: targetDir, });
     for (const file of testFiles) {
@@ -94,25 +131,56 @@ export const executeProgram = async (
     if (!specifiedTestScopes.includes('unit')) delete pkg.scripts['test:unit'];
     if (!specifiedTestScopes.includes('i9n')) delete pkg.scripts['test:i9n'];
     if (!specifiedTestScopes.includes('e2e')) {
+      fs.rmSync(path.resolve(targetDir, 'playwright.config.ts'), { force: true, }); // remove playwright.config
       delete pkg.scripts['test:e2e'];
       delete pkg.devDependencies['@playwright/test'];
     }
 
     // remove vitest if neither unit nor i9n are selected
     if (!specifiedTestScopes.includes('unit') && !specifiedTestScopes.includes('i9n')) {
+      fs.rmSync(path.resolve(targetDir, 'vitest.config.ts'), { force: true, }); // remove vitest.config
       delete pkg.devDependencies['vitest'];
       delete pkg.devDependencies['supertest'];
       delete pkg.devDependencies['@types/supertest'];
     }
   }
+}
 
+
+/**
+ * Handle API docs preferences
+ */
+const handleDocs = (
+  opts: CliOptions,
+  targetDir: string,
+  project: Project,
+  pkg: Record<string, any>,
+) => {
   // remove docs
-  if (!opts.withDocs) {
+  if (opts.docs === 'off') {
+    // delete route
+    const routesFilePath = path.resolve(targetDir, 'src/app/routes.ts');
+    const routesFile = project.addSourceFileAtPath(routesFilePath);
+    routesFile?.getDescendantsOfKind(SyntaxKind.ExpressionStatement)
+      .forEach(statement => {
+        if (statement.getText().includes('swaggerUi.serve')) statement.remove();
+      });
+    routesFile.getImportDeclarations()
+      .forEach(statement => {
+        if (statement.getModuleSpecifierValue().includes('swagger')) statement.remove();
+      });
+    routesFile.saveSync();
+
+    // remove spec files
     const docFiles = fs.globSync('src/**/*.docs.yml', { cwd: targetDir });
     for (const file of docFiles) {
       const filePath = path.resolve(targetDir, file);
       fs.rmSync(filePath, { force: true });
     }
+
+    // remove swagger config
+    const docConfigPath = path.resolve(targetDir, 'src/config/swagger.ts');
+    fs.rmSync(docConfigPath, { force: true, });
 
     // clean up docs dependencies
     delete pkg.dependencies['swagger-jsdoc'];
@@ -120,7 +188,17 @@ export const executeProgram = async (
     delete pkg.devDependencies['@types/swagger-jsdoc'];
     delete pkg.devDependencies['@types/swagger-ui-express'];
   }
+}
 
+
+/**
+ * Handle server observability preferences
+ */
+const handleTelemetry = (
+  opts: CliOptions,
+  targetDir: string,
+  pkg: Record<string, any>,
+) => {
   // remove telemetry
   if (opts.telemetry === 'off') {
     const telemetryDir = path.resolve(targetDir, 'src/telemetry/');
@@ -131,22 +209,11 @@ export const executeProgram = async (
     for (const [key, val] of pkgScripts) pkg.scripts[key] = val.replace(/--import\s+\S*telemetry\S*/g, '').replace(/\s+/g, ' ').trim();
 
     // delete telemetry dependencies
-    const pkgDeps = [pkg.dependencies, pkg.devDependencies];
-    for (const deps of pkgDeps) {
-      Object.keys(deps).forEach(item => {
-        if (item.startsWith('@opentelemetry/')) delete deps[item];
+    const deps = [pkg.dependencies, pkg.devDependencies];
+    for (const dep of deps) {
+      Object.keys(dep).forEach(item => {
+        if (item.startsWith('@opentelemetry/')) delete dep[item];
       });
     }
   }
-  
-  const pkgSerialized = JSON.stringify(pkg, null, 2);
-  fs.writeFileSync(pkgPath, pkgSerialized, 'utf-8'); // overwrite default file with modified one
-
-  logger.info('Installing dependencies...');
-  child_process.execSync('npm install', {
-    cwd: targetDir,
-    stdio: 'inherit',
-  });
-
-  logger.info(`\nDone! Next steps:\n  cd ${dirArg}\n  npm run dev\n`);
 }

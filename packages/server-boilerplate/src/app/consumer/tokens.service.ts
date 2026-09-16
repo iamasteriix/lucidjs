@@ -7,10 +7,10 @@ export const consumeToken = async (
   token: string,
 ): Promise<string | null> => {
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _) => {
     setTimeout(
       () => {
-        if (token === 'some-bad-token') return reject('');
+        if (token === 'some-bad-token') return resolve('');
         const id = Array.from(getRandomValues(new Uint8Array(`${prefix}:${token}`.length)))
           .map(b => b.toString(16).padStart(2, '0'))
           .join('');

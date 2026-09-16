@@ -20,11 +20,13 @@ export default defineConfig({
     js: '#!/usr/bin/env node',  // automatically inject the node shebang at the top of the compiled file
   },
   onSuccess: async () => {
-    const serverTemplateSrc = path.resolve(__dirname, '../server-template/');
-    const serverTemplateDest = path.resolve(__dirname, 'dist/templates/server/');
-    fs.cpSync(serverTemplateSrc, serverTemplateDest, { recursive: true, });
+    const serverBoilerplateSrc = path.resolve(__dirname, '../server-boilerplate/');
+    const serverBoilerplateDest = path.resolve(__dirname, 'dist/boilerplate/server/');
+    fs.cpSync(serverBoilerplateSrc, serverBoilerplateDest, { recursive: true, });
 
-    const serverNodeModulesDir = path.join(serverTemplateDest, 'node_modules');
-    fs.rmSync(serverNodeModulesDir, { recursive: true, force: true });
+    ['node_modules', 'test-results'].forEach(dirName => {
+      const dirPath = path.join(serverBoilerplateDest, dirName);
+      if (dirPath) fs.rmSync(dirPath, { recursive: true, force: true });
+    });
   },
 });

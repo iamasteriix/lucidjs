@@ -22,7 +22,7 @@ test.describe(
         const res = await request.get(`${env.ENDPOINT}:${env.PORT}/consumer/verify`, {
           params: { token: 'some-bad-token', },
         });
-      expect(res.status()).toBe(401);
-      expect((await res.json()).error).toMatchObject({ error: ErrorCodes.internal, });
+        expect(res.status()).toBe(401);
+        expect(await res.json()).toMatchObject({ error: ErrorCodes.internal, });
     });
 });

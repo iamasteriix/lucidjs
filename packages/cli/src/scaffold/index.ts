@@ -1,0 +1,1 @@
+export { scaffoldCommand } from './scaffold';

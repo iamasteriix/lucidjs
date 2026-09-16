@@ -1,17 +1,9 @@
 import { Command } from 'commander';
-import { createTemplate } from './templates';
-import { registerFonts, } from './fonts';
+import { scaffoldCommand } from './scaffold/scaffold';
 
 
-const program = new Command();
-
-
-program
-  .name('lucidjs')
+new Command('lucid')
   .description('Create elegant experiences for everyone')
-  .version('0.1.0');
-
-createTemplate(program);
-registerFonts(program);
-
-program.parse(process.argv);
+  .version('0.1.0')
+  .addCommand(scaffoldCommand)
+  .parse(process.argv);

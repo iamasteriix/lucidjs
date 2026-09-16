@@ -1,6 +1,6 @@
 export type CliOptions = {
-  withTests?: boolean;
+  tests?: 'on' | 'off';
   testScope?: string[];
-  withDocs?: boolean;
+  docs?: 'on' | 'off';
   telemetry?: 'on' | 'off';
 };

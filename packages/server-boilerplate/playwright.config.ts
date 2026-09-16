@@ -15,7 +15,7 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   webServer: {
-    command: 'npx tsx watch --env-file=.env.test --import ./src/telemetry/index.ts src/index.ts',
+    command: 'npx tsx watch --env-file=.env.test src/index.ts',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
   },

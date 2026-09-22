@@ -35,7 +35,7 @@ export const initCommand = new Command('init')
     // specify platform
     const { type, } = await inquirer.prompt([
       {
-        type: 'list',
+        type: 'rawlist',
         name: 'type',
         message: 'Select platform framework',
         choices: ['server'],

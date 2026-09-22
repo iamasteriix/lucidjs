@@ -1,3 +1,5 @@
+![](https://i.pinimg.com/564x/32/eb/78/32eb788b6ed06fb3717cd3ca594b52dc.jpg)
+
 # Lucid - CLI
 
 Yet another JavaScript framework.

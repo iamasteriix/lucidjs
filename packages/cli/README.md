@@ -1,4 +1,4 @@
-![](https://i.pinimg.com/564x/32/eb/78/32eb788b6ed06fb3717cd3ca594b52dc.jpg)
+![Create elegant experiences for everyone](https://i.pinimg.com/564x/21/e0/69/21e069410bbd7b5d1b487948f5d854da.jpg)
 
 # Lucid - CLI
 
